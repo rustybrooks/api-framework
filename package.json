@@ -1,6 +1,6 @@
 {
   "name": "@rustybrooks/api-framework",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A simple api framework for expressjs",
   "main": "./lib/index.js",
   "files": ["lib/**/*"],

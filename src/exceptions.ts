@@ -1,4 +1,4 @@
-export class HaltException extends Error {}
+type Detail = string | { [id: string]: any };
 
 export class HttpException extends Error {
   status: number;
@@ -7,7 +7,7 @@ export class HttpException extends Error {
 
   detail_code: string;
 
-  constructor(status = 500, detail = 'An unknown error occurred', detail_code: string = null) {
+  constructor(status = 500, detail: Detail = 'An unknown error occurred', detail_code: string = null) {
     super(detail);
     this.status = status;
     this.message = detail;
@@ -16,19 +16,19 @@ export class HttpException extends Error {
 }
 
 export class HttpForbidden extends HttpException {
-  constructor(detail = 'forbidden', detail_code = 'forbidden') {
+  constructor(detail: Detail = 'forbidden', detail_code = 'forbidden') {
     super(403, detail, detail_code);
   }
 }
 
 export class HttpBadRequest extends HttpException {
-  constructor(detail = 'bad request', detail_code = 'bad_request') {
+  constructor(detail: Detail = 'bad request', detail_code = 'bad_request') {
     super(400, detail, detail_code);
   }
 }
 
 export class HttpNotFound extends HttpException {
-  constructor(detail = 'not found', detail_code = 'not_found') {
+  constructor(detail: Detail = 'not found', detail_code = 'not_found') {
     super(404, detail, detail_code);
   }
 }
