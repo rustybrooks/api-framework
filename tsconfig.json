@@ -1,0 +1,7 @@
+{
+    "extends": "@rustybrooks/eslint-config-prettier",
+    "include": [
+        "./src/",
+    ],
+   "exclude": ["node_modules", "**/*.spec.ts"]
+}

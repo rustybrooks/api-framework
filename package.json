@@ -1,0 +1,66 @@
+{
+  "name": "@rustybrooks/api-framework",
+  "version": "1.0.0",
+  "description": "An api framework for expressjs",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "main": "./dist/src/index.js",
+  "scripts": {
+    "serve": "DEBUG=express:* nodemon src/index.ts",
+    "build": "rm -rf dist && tsc -p .",
+    "packlist": "npx npm-packlist",
+    "test": "./node_modules/.bin/jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rustybrooks/api-framework.git"
+  },
+  "keywords": [],
+  "author": "Rusty Brooks <me@rustybrooks.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rustybrooks/api-framework/issues"
+  },
+  "homepage": "https://github.com/rustybrooks/api-framework#readme",
+  "devDependencies": {
+    "@jest/types": "latest",
+    "@types/jest": "latest",
+    "@types/node": "latest",
+    "jest": "latest",
+    "ts-jest": "latest",
+    "ts-node": "latest",
+    "@rustybrooks/eslint-config-prettier": "^1.0.9",
+    "@types/bcrypt": "latest",
+    "@types/cors": "latest",
+    "@types/express": "latest",
+    "@types/jsonwebtoken": "latest",
+    "@types/supertest": "latest",
+    "mockdate": "latest",
+    "nodemon": "latest",
+    "supertest": "latest",
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "dotenv": "latest",
+    "@newrelic/native-metrics": "latest",
+    "bcrypt": "latest",
+    "cors": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "newrelic": "latest"    
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": {
+      "node_modules/variables/.+\\.(j|t)sx?$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!variables/.*)"
+    ]
+  }
+}
