@@ -4,10 +4,34 @@ import { HttpException } from './exceptions';
 
 const registry: { [id: string]: any } = {};
 
+export function apiInt(val: any) {
+  return parseInt(val, 10);
+}
+
+export function apiFloat(val: any) {
+  return parseFloat(val);
+}
+
+export function apiBool(val: any) {
+  if (typeof val === 'string') {
+    if (val.toLowerCase() === 'true') {
+      return true;
+    }
+    if (val === '1') {
+      return true;
+    }
+  }
+  if (typeof val === 'number' && val === 1) {
+    return true;
+  }
+  return !!val;
+}
+
 export function Api({ requireLogin = false }: { requireLogin?: boolean } = {}) {
   return (classObj: any) => {
     const className = classObj.name;
 
+    console.log('proto', Object.getOwnPropertyNames(classObj));
     const endpoints: any[] = Object.getOwnPropertyNames(classObj.prototype)
       .filter(fn => {
         console.log(`fn = ${fn}`, classObj.prototype[fn]);
@@ -39,9 +63,12 @@ export function endpointWrapper(endpoint: any) {
   return async (request: Request, response: Response, next: NextFunction) => {
     console.log('endpoint thing', endpoint);
     try {
-      const body = endpoint.fn();
-      response.status(200).json(body);
+      const args = { ...request.query, ...request.body };
+      const body = await endpoint.fn(args);
+      console.log(args, body);
+      return response.status(200).json(body);
     } catch (e) {
+      console.log('An error occurred', e.stack);
       return next(new HttpException());
     }
   };
