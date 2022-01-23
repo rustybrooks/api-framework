@@ -27,6 +27,12 @@ export function apiBool(val: any) {
   return !!val;
 }
 
+export const apiRequireLogin = (response: Response, next: NextFunction) => {
+  if (response.locals.user === null) {
+    throw new HttpException(403, 'unauthorized', 'unauthorized');
+  }
+};
+
 export function Api({ requireLogin = false }: { requireLogin?: boolean } = {}) {
   return (classObj: any) => {
     const className = classObj.name;
@@ -41,6 +47,7 @@ export function Api({ requireLogin = false }: { requireLogin?: boolean } = {}) {
         return {
           name: classObj.prototype[fn].name,
           fn: classObj.prototype[fn],
+          requireLogin,
         };
       });
     const data = {
@@ -61,7 +68,14 @@ export function mountApi(classObj: any, prefix: string) {
 
 export function endpointWrapper(endpoint: any) {
   return async (request: Request, response: Response, next: NextFunction) => {
-    console.log('endpoint thing', endpoint);
+    if (endpoint.requireLogin) {
+      try {
+        apiRequireLogin(response, next);
+      } catch (e) {
+        return next(e);
+      }
+    }
+
     try {
       const args = { ...request.query, ...request.body };
       const body = await endpoint.fn(args);
@@ -74,12 +88,14 @@ export function endpointWrapper(endpoint: any) {
   };
 }
 
-export function init() {
+export function init(isLoggedInFn: (request: Request) => Promise<boolean> = null) {
   const app = express();
 
   const beforeRequest = async (req: Request, res: Response, next: NextFunction) => {
-    // res.locals.user = await users.isLoggedIn(req);
-    // res.setHeader('X-LOGGED-IN', res.locals.user ? '1' : '0');
+    if (isLoggedInFn !== null) {
+      res.locals.user = await isLoggedInFn(req);
+      res.setHeader('X-LOGGED-IN', res.locals.user ? '1' : '0');
+    }
     next();
   };
 

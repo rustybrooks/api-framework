@@ -1,6 +1,6 @@
 {
   "name": "@rustybrooks/api-framework",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "An api framework for expressjs",
   "exports": {
     ".": "./dist/src/index.js"
@@ -28,7 +28,7 @@
   "homepage": "https://github.com/rustybrooks/api-framework#readme",
   "devDependencies": {
     "@jest/types": "latest",
-    "@rustybrooks/eslint-config-prettier": "^1.0.11",
+    "@rustybrooks/eslint-config-prettier": "^1.0.13",
     "@types/bcrypt": "latest",
     "@types/cors": "latest",
     "@types/express": "latest",
