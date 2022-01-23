@@ -1,4 +1,5 @@
 import * as framework from './framework';
+import * as exceptions from './exceptions';
 
 @framework.Api()
 class Test {

@@ -77,11 +77,14 @@ export function endpointWrapper(endpoint: any) {
     }
 
     try {
-      const args = { ...request.query, ...request.body };
+      const args = { _user: response.locals.user, ...request.query, ...request.body };
       const body = await endpoint.fn(args);
       console.log(args, body);
       return response.status(200).json(body);
     } catch (e) {
+      if (e instanceof HttpException) {
+        return next(e);
+      }
       console.log('An error occurred', e.stack);
       return next(new HttpException());
     }
