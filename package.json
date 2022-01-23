@@ -1,6 +1,6 @@
 {
   "name": "@rustybrooks/api-framework",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "An api framework for expressjs",
   "exports": {
     ".": "./dist/src/index.js"

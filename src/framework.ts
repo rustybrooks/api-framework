@@ -33,30 +33,45 @@ export const apiRequireLogin = (response: Response, next: NextFunction) => {
   }
 };
 
-export function Api({ requireLogin = false }: { requireLogin?: boolean } = {}) {
+export function apiClass({ requireLogin = false }: { requireLogin?: boolean } = {}) {
   return (classObj: any) => {
+    console.log('apiclass');
     const className = classObj.name;
 
-    console.log('proto', Object.getOwnPropertyNames(classObj));
-    const endpoints: any[] = Object.getOwnPropertyNames(classObj.prototype)
-      .filter(fn => {
-        console.log(`fn = ${fn}`, classObj.prototype[fn]);
-        return fn !== 'constructor' && !fn.startsWith('_');
-      })
-      .map(fn => {
-        return {
-          name: classObj.prototype[fn].name,
-          fn: classObj.prototype[fn],
-          requireLogin,
-        };
-      });
-    const data = {
+    if (!(className in registry)) {
+      registry[className] = {
+        endpoints: {},
+      };
+    }
+    registry[className] = { ...registry[className], requireLogin, classObj };
+
+    const functions = Object.getOwnPropertyNames(classObj.prototype).filter(fn => {
+      return fn !== 'constructor' && !fn.startsWith('_');
+    });
+    for (const fn of functions) {
+      if (!(fn in registry[className].endpoints)) {
+        registry[className].endpoints[fn] = {};
+      }
+      registry[className].endpoints[fn] = { name: fn, fn: classObj.prototype[fn], requireLogin, ...registry[className].endpoints[fn] };
+    }
+
+    console.log('registry', className, registry[className]);
+    return classObj;
+  };
+}
+
+export function apiConfig({ requireLogin = false }: { requireLogin?: boolean } = {}): any {
+  return (fn: any, name: string, descriptor: any) => {
+    const className = fn.constructor.name;
+    if (!(className in registry)) {
+      registry[className] = {
+        endpoints: {},
+      };
+    }
+    registry[className].endpoints[name] = {
       requireLogin,
-      classObj,
-      endpoints,
     };
-    console.log('registry', className, data);
-    registry[className] = data;
+    return fn;
   };
 }
 
@@ -68,6 +83,7 @@ export function mountApi(classObj: any, prefix: string) {
 
 export function endpointWrapper(endpoint: any) {
   return async (request: Request, response: Response, next: NextFunction) => {
+    console.log('requireLogin?', endpoint.requireLogin);
     if (endpoint.requireLogin) {
       try {
         apiRequireLogin(response, next);
@@ -91,12 +107,14 @@ export function endpointWrapper(endpoint: any) {
   };
 }
 
-export function init(isLoggedInFn: (request: Request) => Promise<boolean> = null) {
+export function init(isLoggedInFn: (request: Request) => Promise<any> = null) {
   const app = express();
 
   const beforeRequest = async (req: Request, res: Response, next: NextFunction) => {
+    console.log('isLoggedInFn?', isLoggedInFn);
     if (isLoggedInFn !== null) {
       res.locals.user = await isLoggedInFn(req);
+      console.log('is user', res.locals.user);
       res.setHeader('X-LOGGED-IN', res.locals.user ? '1' : '0');
     }
     next();
@@ -135,10 +153,9 @@ export function init(isLoggedInFn: (request: Request) => Promise<boolean> = null
     console.log(`router for ${className} => ${registry[className].urlPrefix}`);
     const router = express.Router();
     app.use(registry[className].urlPrefix, router);
-    for (const endpoint of registry[className].endpoints) {
-      console.log(`endpoint ${endpoint.name}`);
-      const url = endpoint.name === 'index' ? '/' : `/${endpoint.name}`;
-      router.all(url, endpointWrapper(endpoint));
+    for (const endpoint of Object.keys(registry[className].endpoints)) {
+      const url = endpoint === 'index' ? '/' : `/${endpoint}`;
+      router.all(url, endpointWrapper(registry[className].endpoints[endpoint]));
     }
   }
 
