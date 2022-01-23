@@ -1,11 +1,8 @@
 {
   "name": "@rustybrooks/api-framework",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "A simple api framework for expressjs",
-  "exports": {
-    ".": "./lib/src/index.js"
-  },
-  "main": "./lib/src/index.js",
+  "main": "./lib/index.js",
   "files": ["lib/**/*"],
   "scripts": {
     "serve": "nodemon src/test.ts",
