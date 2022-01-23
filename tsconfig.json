@@ -1,6 +1,9 @@
 {
-    "extends": "@rustybrooks/eslint-config-prettier",
-    "include": [
+  "extends": "@rustybrooks/eslint-config-prettier",
+  "compilerOptions": {
+    "outDir": "./lib"
+  },
+  "include": [
         "./src/"
     ],
    "exclude": ["node_modules", "**/*.spec.ts"]
