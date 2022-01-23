@@ -35,7 +35,6 @@ export const apiRequireLogin = (response: Response, next: NextFunction) => {
 
 export function apiClass({ requireLogin = false }: { requireLogin?: boolean } = {}) {
   return (classObj: any) => {
-    console.log('apiclass');
     const className = classObj.name;
 
     if (!(className in registry)) {
@@ -55,7 +54,6 @@ export function apiClass({ requireLogin = false }: { requireLogin?: boolean } = 
       registry[className].endpoints[fn] = { name: fn, fn: classObj.prototype[fn], requireLogin, ...registry[className].endpoints[fn] };
     }
 
-    console.log('registry', className, registry[className]);
     return classObj;
   };
 }
@@ -76,14 +74,12 @@ export function apiConfig({ requireLogin = false }: { requireLogin?: boolean } =
 }
 
 export function mountApi(classObj: any, prefix: string) {
-  console.log(classObj, prefix);
   const className = classObj.name;
   registry[className].urlPrefix = prefix;
 }
 
 export function endpointWrapper(endpoint: any) {
   return async (request: Request, response: Response, next: NextFunction) => {
-    console.log('requireLogin?', endpoint.requireLogin);
     if (endpoint.requireLogin) {
       try {
         apiRequireLogin(response, next);
@@ -95,13 +91,11 @@ export function endpointWrapper(endpoint: any) {
     try {
       const args = { _user: response.locals.user, ...request.query, ...request.body };
       const body = await endpoint.fn(args);
-      console.log(args, body);
       return response.status(200).json(body);
     } catch (e) {
       if (e instanceof HttpException) {
         return next(e);
       }
-      console.log('An error occurred', e.stack);
       return next(new HttpException());
     }
   };
@@ -111,24 +105,17 @@ export function init(isLoggedInFn: (request: Request) => Promise<any> = null) {
   const app = express();
 
   const beforeRequest = async (req: Request, res: Response, next: NextFunction) => {
-    console.log('isLoggedInFn?', isLoggedInFn);
     if (isLoggedInFn !== null) {
       res.locals.user = await isLoggedInFn(req);
-      console.log('is user', res.locals.user);
       res.setHeader('X-LOGGED-IN', res.locals.user ? '1' : '0');
     }
     next();
   };
 
   function errorMiddleware(error: HttpException, request: Request, response: Response, next: NextFunction) {
-    // console.log('errorMiddleware', error);
-    const status = error.status || 500;
-    const message = error.message || 'Something went wrong';
-    const detail_code = error.detail_code || 'unknown';
-    response.status(status).send({
-      detail: message,
-      detail_code,
-    });
+    const { status } = error;
+
+    response.status(status).send(error.data);
   }
 
   function defaulterrorMiddleware(error: Error, request: Request, response: Response, next: NextFunction) {
@@ -150,7 +137,6 @@ export function init(isLoggedInFn: (request: Request) => Promise<any> = null) {
 
   // routes here
   for (const className of Object.keys(registry)) {
-    console.log(`router for ${className} => ${registry[className].urlPrefix}`);
     const router = express.Router();
     app.use(registry[className].urlPrefix, router);
     for (const endpoint of Object.keys(registry[className].endpoints)) {
