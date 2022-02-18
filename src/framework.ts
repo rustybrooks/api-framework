@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import { HttpException } from './exceptions';
 
-const registry: { [id: string]: any } = {};
+export const registry: { [id: string]: any } = {};
 
 export function apiInt(val: any) {
   return parseInt(val, 10);
@@ -43,6 +43,7 @@ export function apiClass({ requireLogin = false }: { requireLogin?: boolean } = 
       };
     }
     registry[className] = { ...registry[className], requireLogin, classObj };
+    // console.log('class obj!', classObj, Object.getOwnPropertyNames(classObj));
 
     const functions = Object.getOwnPropertyNames(classObj.prototype).filter(fn => {
       return fn !== 'constructor' && !fn.startsWith('_');
@@ -51,7 +52,9 @@ export function apiClass({ requireLogin = false }: { requireLogin?: boolean } = 
       if (!(fn in registry[className].endpoints)) {
         registry[className].endpoints[fn] = {};
       }
-      registry[className].endpoints[fn] = { name: fn, fn: classObj.prototype[fn], requireLogin, ...registry[className].endpoints[fn] };
+      // console.log(className, fn, classObj.prototype[fn]);
+      registry[className].endpoints[fn] = { ...registry[className].endpoints[fn], name: fn, fn: classObj.prototype[fn], requireLogin };
+      // console.log(registry[className].endpoints[fn]);
     }
 
     return classObj;
@@ -96,6 +99,7 @@ export function endpointWrapper(endpoint: any) {
       if (e instanceof HttpException) {
         return next(e);
       }
+      console.log(e.stack);
       return next(new HttpException());
     }
   };

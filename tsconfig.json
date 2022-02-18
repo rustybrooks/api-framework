@@ -2,7 +2,9 @@
   "extends": "@rustybrooks/eslint-config-prettier",
   "compilerOptions": {
     "outDir": "./lib",
-    "declaration" :true
+    "declaration" :true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [
         "./src/"

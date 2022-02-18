@@ -1,6 +1,6 @@
 {
   "name": "@rustybrooks/api-framework",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "A simple api framework for expressjs",
   "main": "./lib/index.js",
   "files": ["lib/**/*"],
@@ -44,6 +44,7 @@
     "typescript": "latest"
   },
   "dependencies": {
+    "tinspector": "latest",
     "@newrelic/native-metrics": "latest",
     "bcrypt": "latest",
     "cors": "latest",
