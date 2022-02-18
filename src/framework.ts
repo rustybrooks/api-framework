@@ -52,9 +52,9 @@ export function apiClass({ requireLogin = false }: { requireLogin?: boolean } = 
       if (!(fn in registry[className].endpoints)) {
         registry[className].endpoints[fn] = {};
       }
-      // console.log(className, fn, classObj.prototype[fn]);
-      registry[className].endpoints[fn] = { ...registry[className].endpoints[fn], name: fn, fn: classObj.prototype[fn], requireLogin };
-      // console.log(registry[className].endpoints[fn]);
+
+      registry[className].endpoints[fn] = { name: fn, fn: classObj.prototype[fn], requireLogin, ...registry[className].endpoints[fn] };
+      // registry[className].endpoints[fn] = { ...registry[className].endpoints[fn], requireLogin, name: fn, fn: classObj.prototype[fn],  };
     }
 
     return classObj;
